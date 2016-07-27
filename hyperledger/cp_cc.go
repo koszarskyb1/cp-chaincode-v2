@@ -75,6 +75,7 @@ func msToTime(ms string) (time.Time, error) {
 type Owner struct {
 	Company string    `json:"company"`
 	Quantity int      `json:"quantity"`
+	Selling  bool     `json:"selling"`
 }
 
 type CP struct {
@@ -102,7 +103,6 @@ type Transaction struct {
 	ToCompany   string   `json:"toCompany"`
 	Quantity    int      `json:"quantity"`
 	Discount    float64  `json:"discount"`
-	ForSale		bool	 `json:"forSale"`
 }
 
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
@@ -287,6 +287,9 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 	var owner Owner
 	owner.Company = cp.Issuer
 	owner.Quantity = cp.Qty
+
+	//set selling to true
+	owner.Selling = true
 
 	
 	cp.Owners = append(cp.Owners, owner)
@@ -486,7 +489,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 			  "fromCompany":"",
 			  "toCompany":"",
 			  "quantity": 1
-			  "forSale": true
+			 
 		}
 	*/
 	//need one arg
@@ -551,19 +554,21 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	// Check for all the possible errors
 	ownerFound := false 
 	quantity := 0
+	forSale := false
 	for _, owner := range cp.Owners {
 		if owner.Company == tr.FromCompany {
 			ownerFound = true
 			quantity = owner.Quantity
+			forSale = owner.Selling
 		}
 	}
 
 	// If paper isnt for sale
-	if tr.ForSale == false {
-		fmt.Println("paper isn't for sale'")
-		return nil, errors.New("paper isnt for sale")	
+	if forSale == false {
+		fmt.Println("This paper is not for sale")
+		return nil, errors.New("This paper is not for sale")	
 	} else {
-		fmt.Println("paper is for sale")
+		fmt.Println("This paper is for sale")
 	}
 
 	
@@ -583,9 +588,14 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 		fmt.Println("The FromCompany owns enough of this paper")
 	}
 	
-	
+	if (forSale) {
 	amountToBeTransferred = float64(tr.Quantity) * cp.Par
 	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
+	forSale = false
+	} else {
+		amountToBeTransferred = 0
+		forSale = true
+	}
 
 	
 	
@@ -613,6 +623,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 			fmt.Println("Increasing Quantity from the ToCompany")
 			toOwnerFound = true
 			cp.Owners[key].Quantity += tr.Quantity
+			cp.Owners[key].Selling = forSale
 //			owner.Quantity += tr.Quantity
 		}
 	}
@@ -622,8 +633,11 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 		fmt.Println("As ToOwner was not found, appending the owner to the CP")
 		newOwner.Quantity = tr.Quantity
 		newOwner.Company = tr.ToCompany
+		newOwner.Selling = forSale
 		cp.Owners = append(cp.Owners, newOwner)
 	}
+
+
 	
 	fromCompany.AssetsIds = append(fromCompany.AssetsIds, tr.CUSIP)
 
