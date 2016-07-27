@@ -387,7 +387,6 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 		for key, val := range cprx.Owners {
 			if val.Company == cp.Issuer {
 				cprx.Owners[key].Quantity += cp.Qty
-				cprx.Owners[key].Selling = true
 				break
 			}
 		}
@@ -555,14 +554,22 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	// Check for all the possible errors
 	ownerFound := false 
 	quantity := 0
-
+	forSale := false
 	for _, owner := range cp.Owners {
 		if owner.Company == tr.FromCompany {
 			ownerFound = true
 			quantity = owner.Quantity
+			forSale = owner.Selling
 		}
 	}
 
+	// If paper isnt for sale
+	if forSale == false {
+		fmt.Println("This paper is not for sale")
+		return nil, errors.New("This paper is not for sale")	
+	} else {
+		fmt.Println("This paper is for sale")
+	}
 
 	
 	// If fromCompany doesn't own this paper
@@ -582,13 +589,13 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	}
 	 
 	var amountToBeTransferred float64
-	if (owner.ForSale) {
+	if (forSale) {
 	amountToBeTransferred = float64(tr.Quantity) * cp.Par
 	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
-	owner.ForSale = false
+	forSale = false
 	} else {
 		amountToBeTransferred = 0
-		owner.ForSale = true
+		forSale = true
 	}
 
 	
@@ -627,7 +634,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 		fmt.Println("As ToOwner was not found, appending the owner to the CP")
 		newOwner.Quantity = tr.Quantity
 		newOwner.Company = tr.ToCompany
-		newOwner.Selling = owner.ForSale
+		newOwner.Selling = forSale
 		cp.Owners = append(cp.Owners, newOwner)
 	}
 
