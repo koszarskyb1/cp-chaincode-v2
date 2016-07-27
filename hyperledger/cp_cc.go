@@ -553,7 +553,6 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	// Check for all the possible errors
 	ownerFound := false 
 	quantity := 0
-	forSale := cp.ForSale
 	for _, owner := range cp.Owners {
 		if owner.Company == tr.FromCompany {
 			ownerFound = true
