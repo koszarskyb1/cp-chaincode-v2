@@ -87,6 +87,7 @@ type CP struct {
 	Owners    []Owner `json:"owner"`
 	Issuer    string  `json:"issuer"`
 	IssueDate string  `json:"issueDate"`
+	ForSale   bool    `json:"forSale"`
 }
 
 type Account struct {
@@ -376,6 +377,9 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 		}
 		
 		cprx.Qty = cprx.Qty + cp.Qty
+		
+		//Set the paper to forSale
+		cprx.ForSale = true
 		
 		for key, val := range cprx.Owners {
 			if val.Company == cp.Issuer {
