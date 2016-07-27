@@ -587,29 +587,30 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	} else {
 		fmt.Println("The FromCompany owns enough of this paper")
 	}
-	
-//	if (forSale) {
-//	amountToBeTransferred = float64(tr.Quantity) * cp.Par
-//	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
-//	forSale = false
-//	} else {
-//		amountToBeTransferred = 0
-//		forSale = true
-//	}
+	 
+	var amountToBeTransferred float64
+	if (forSale) {
+	amountToBeTransferred = float64(tr.Quantity) * cp.Par
+	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
+	forSale = false
+	} else {
+		amountToBeTransferred = 0
+		forSale = true
+	}
 
 	
 	
 
 	// If toCompany doesn't have enough cash to buy the papers
-//	if toCompany.CashBalance < amountToBeTransferred {
-//		fmt.Println("The company " + tr.ToCompany + "doesn't have enough cash to purchase the papers")		
-//		return nil, errors.New("The company " + tr.ToCompany + "doesn't have enough cash to purchase the papers")	
-//	} else {
-//		fmt.Println("The ToCompany has enough money to be transferred for this paper")
-//	}
+	if toCompany.CashBalance < amountToBeTransferred {
+		fmt.Println("The company " + tr.ToCompany + "doesn't have enough cash to purchase the papers")		
+		return nil, errors.New("The company " + tr.ToCompany + "doesn't have enough cash to purchase the papers")	
+	} else {
+		fmt.Println("The ToCompany has enough money to be transferred for this paper")
+	}
 	
-//	toCompany.CashBalance -= amountToBeTransferred
-//	fromCompany.CashBalance += amountToBeTransferred
+	toCompany.CashBalance -= amountToBeTransferred
+	fromCompany.CashBalance += amountToBeTransferred
 
 
 	toOwnerFound := false
