@@ -606,7 +606,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 //		return nil, errors.New("The company " + tr.ToCompany + "doesn't have enough cash to purchase the papers")	
 //	} else {
 //		fmt.Println("The ToCompany has enough money to be transferred for this paper")
-	}
+//	}
 	
 //	toCompany.CashBalance -= amountToBeTransferred
 //	fromCompany.CashBalance += amountToBeTransferred
