@@ -287,6 +287,7 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 	var owner Owner
 	owner.Company = cp.Issuer
 	owner.Quantity = cp.Qty
+
 	
 	cp.Owners = append(cp.Owners, owner)
 
@@ -586,6 +587,9 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	
 	toCompany.CashBalance -= amountToBeTransferred
 	fromCompany.CashBalance += amountToBeTransferred
+
+	if (cp.ForSale == false) cp.ForSale = true
+	else cp.ForSale = false
 
 	toOwnerFound := false
 	for key, owner := range cp.Owners {
