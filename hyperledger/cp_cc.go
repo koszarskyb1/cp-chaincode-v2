@@ -588,8 +588,6 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	toCompany.CashBalance -= amountToBeTransferred
 	fromCompany.CashBalance += amountToBeTransferred
 
-	if (cp.ForSale == false) cp.ForSale = true
-	else cp.ForSale = false
 
 	toOwnerFound := false
 	for key, owner := range cp.Owners {
