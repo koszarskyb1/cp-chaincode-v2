@@ -387,6 +387,7 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 		for key, val := range cprx.Owners {
 			if val.Company == cp.Issuer {
 				cprx.Owners[key].Quantity += cp.Qty
+				cprx.Owners[key].Selling = true
 				break
 			}
 		}
