@@ -299,6 +299,8 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 
 	fmt.Println("Marshalling CP bytes")
 	cp.CUSIP = account.Prefix + suffix
+
+	cp.ForSale = true
 	
 	fmt.Println("Getting State on CP " + cp.CUSIP)
 	cpRxBytes, err := stub.GetState(cpPrefix+cp.CUSIP)
@@ -551,6 +553,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	// Check for all the possible errors
 	ownerFound := false 
 	quantity := 0
+	forSale := cp.ForSale
 	for _, owner := range cp.Owners {
 		if owner.Company == tr.FromCompany {
 			ownerFound = true
