@@ -551,6 +551,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	}
 
 	// Check for all the possible errors
+	forSale:= "false"
 	ownerFound := false 
 	quantity := 0
 	for _, owner := range cp.Owners {
@@ -558,6 +559,14 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 			ownerFound = true
 			quantity = owner.Quantity
 		}
+	}
+
+	// If paper isnt for sale
+	if forSale == "false" {
+		fmt.Println("The paper is not for sale")
+		return nil, errors.New("The paper is not for sale")	
+	} else {
+		fmt.Println("The paper is for sale")
 	}
 	
 	// If fromCompany doesn't own this paper
@@ -580,8 +589,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	amountToBeTransferred = float64(tr.Quantity) * cp.Par
 	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
 
-	// If not already forSale
-	if (forSale != "true") amountToBeTransferred = 0
+	
 	
 
 	// If toCompany doesn't have enough cash to buy the papers
