@@ -102,6 +102,7 @@ type Transaction struct {
 	ToCompany   string   `json:"toCompany"`
 	Quantity    int      `json:"quantity"`
 	Discount    float64  `json:"discount"`
+	ForSale		bool	 `json:"forSale"`
 }
 
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
@@ -485,6 +486,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 			  "fromCompany":"",
 			  "toCompany":"",
 			  "quantity": 1
+			  "forSale": true
 		}
 	*/
 	//need one arg
@@ -547,6 +549,7 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	}
 
 	// Check for all the possible errors
+	forSale = tr.ForSale
 	ownerFound := false 
 	quantity := 0
 	for _, owner := range cp.Owners {
@@ -554,6 +557,14 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 			ownerFound = true
 			quantity = owner.Quantity
 		}
+	}
+
+	// If paper isnt for sale
+	if forSale == false {
+		fmt.Println("paper isn't for sale'")
+		return nil, errors.New("paper isnt for sale")	
+	} else {
+		fmt.Println("paper is for sale")
 	}
 
 	
