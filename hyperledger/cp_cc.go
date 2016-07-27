@@ -87,7 +87,6 @@ type CP struct {
 	Owners    []Owner `json:"owner"`
 	Issuer    string  `json:"issuer"`
 	IssueDate string  `json:"issueDate"`
-	ForSale   string  `json:"forSale"`
 }
 
 type Account struct {
@@ -300,7 +299,6 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 	fmt.Println("Marshalling CP bytes")
 	cp.CUSIP = account.Prefix + suffix
 
-	cp.ForSale = "true"
 	
 	fmt.Println("Getting State on CP " + cp.CUSIP)
 	cpRxBytes, err := stub.GetState(cpPrefix+cp.CUSIP)
@@ -381,8 +379,6 @@ func (t *SimpleChaincode) issueCommercialPaper(stub *shim.ChaincodeStub, args []
 		
 		cprx.Qty = cprx.Qty + cp.Qty
 		
-		//Set the paper to forSale
-		cprx.ForSale = "true"
 		
 		for key, val := range cprx.Owners {
 			if val.Company == cp.Issuer {
@@ -551,7 +547,6 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 	}
 
 	// Check for all the possible errors
-	forSale:= "false"
 	ownerFound := false 
 	quantity := 0
 	for _, owner := range cp.Owners {
@@ -561,13 +556,6 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 		}
 	}
 
-	// If paper isnt for sale
-	if forSale == "false" {
-		fmt.Println("The paper is not for sale")
-		return nil, errors.New("The paper is not for sale")	
-	} else {
-		fmt.Println("The paper is for sale")
-	}
 	
 	// If fromCompany doesn't own this paper
 	if ownerFound == false {
