@@ -576,11 +576,13 @@ func (t *SimpleChaincode) transferPaper(stub *shim.ChaincodeStub, args []string)
 		fmt.Println("The FromCompany owns enough of this paper")
 	}
 	
-	var amountToBeTransferred = 0
-	if (cp.ForSale == "true") {
+	
 	amountToBeTransferred = float64(tr.Quantity) * cp.Par
 	amountToBeTransferred -= (amountToBeTransferred) * (cp.Discount / 100.0) * (float64(cp.Maturity) / 360.0)
-	}
+
+	// If not already forSale
+	if (forSale != "true") amountToBeTransferred = 0
+	
 
 	// If toCompany doesn't have enough cash to buy the papers
 	if toCompany.CashBalance < amountToBeTransferred {
